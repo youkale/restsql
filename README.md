@@ -27,11 +27,12 @@ lein clean && lein uberjar
 ```
 打包
 - 目录 `./target/restsql.jar`
-- 启动: `java -jar ./target/restsql.jar`
+- 启动: `java -Dconfig=config-dev.edn -jar ./target/restsql.jar`
 
 ## 数据支持
 
-修改 `project.clj` 下的 `:dependencies`, 同时修改 `restsql.db` 下 `datasource-options` [配置](https://cljdoc.org/d/hikari-cp/hikari-cp/2.13.0/doc/readme)
+- 修改 `project.clj` 下的 `:dependencies`, 增加数据库的支持
+- 配置文件`config-dev.den`-> `:database` 配置对应数据库的相关参数. [参考地址](https://cljdoc.org/d/hikari-cp/hikari-cp/2.13.0/doc/readme)
 
 ## License
 

@@ -2,25 +2,26 @@
   (:require [hugsql.core :as hugsql]
             [hikari-cp.core :refer :all]
             [clojure.java.jdbc :as jdbc]
-            [clojure.walk :as walk]
+            [restsql.config :refer [env]]
             [clojure.tools.logging :as log]))
 
-(hugsql/def-db-fns "queries.sql")
+(def debug? (:sql-debug env))
 
-;; 文档地址 https://cljdoc.org/d/hikari-cp/hikari-cp/2.13.0/doc/readme
-(def datasource-options {:adapter "h2"
-                         :url     "jdbc:h2:~/test"})
+(defmacro def-db-fns [sql-file]
+  `(do (hugsql/def-db-fns ~sql-file)
+       (when debug?
+          (hugsql/def-sqlvec-fns ~sql-file))))
 
 (defonce datasource
-         (delay (make-datasource datasource-options)))
+         (delay (make-datasource (:database env))))
 
-(defn with-hug [method params]
-  (jdbc/with-db-connection
-    [conn {:datasource @datasource}]
-    (let [method (symbol method)
-          res ((ns-resolve
-                 'restsql.db (symbol method)) conn (walk/keywordize-keys params))]
-      (log/debug "invoke sql res" res)
-      (if (number? res)
-        {:res res}
-        res))))
+(defn with-hug [ns db-fn params]
+  (let [fname (symbol db-fn)]
+   (jdbc/with-db-connection
+     [conn {:datasource @datasource}]
+     (let [idbf (ns-resolve ns fname)
+           res (idbf conn params)]
+       (when debug?
+         (let [f (ns-resolve ns (-> (name fname) (str "-sqlvec") symbol))]
+           (log/debugf "invoke %s : %s => \n %s" (-> f meta :doc) (f params)  res)))
+       res))))

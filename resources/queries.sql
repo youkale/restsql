@@ -12,20 +12,20 @@ create table characters (
                             name       varchar(40),
                             specialty  varchar(40),
                             created_at timestamp not null default current_timestamp
-)
+);
 
 /* ...snip... */
 
 -- A :result value of :n below will return affected rows:
 -- :name insert-character :! :n
--- :doc Insert a single character returning affected row count
+-- :doc 插入character
 insert into characters (name, specialty)
-values (:name, :specialty)
+values (:name, :specialty);
 
 -- :name insert-characters :! :n
 -- :doc Insert multiple characters with :tuple* parameter type
 insert into characters (name, specialty)
-values :tuple*:characters
+values :tuple*:characters;
 
 /* ...snip... */
 
@@ -34,7 +34,7 @@ values :tuple*:characters
 -- :name character-by-id :? :1
 -- :doc Get character by id
 select * from characters
-where id = :id
+where id = :id;
 
 -- Let's specify some columns with the
 -- identifier list parameter type :i* and
@@ -42,4 +42,4 @@ where id = :id
 -- :name characters-by-ids-specify-cols :? :*
 -- :doc Characters with returned columns specified
 select :i*:cols from characters
-where id in (:v*:ids)
+where id in (:v*:ids);
